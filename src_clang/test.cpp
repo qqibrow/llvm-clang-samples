@@ -47,27 +47,27 @@ class FindNamedClassVisitor
 
     bool VisitCXXRecordDecl(CXXRecordDecl *Declaration) {
         Proto message;
+        // Get name of the class.
         if (Declaration->getQualifiedNameAsString().find("anonymous") !=
             std::string::npos) {
             // anonymous class
-            for (const auto &fieldIterator : Declaration->fields()) {
-                message.fields.push_back(getFieldFrom(fieldIterator));
-            }
             const Decl *nextDecl = Declaration->getNextDeclInContext();
             if (nextDecl && nextDecl->getKind() == Decl::Typedef) {
                 const TypedefDecl *typedefDecl =
                     (const TypedefDecl *)(nextDecl);
                 message.name = typedefDecl->getNameAsString();
-                cout << message.getDefinition();
             } else {
                 cout << "some error might happen." << endl;
             }
 
         } else {
             message.name = Declaration->getQualifiedNameAsString();
-            for (const auto &fieldIterator : Declaration->fields()) {
-                message.fields.push_back(getFieldFrom(fieldIterator));
-            }
+        }
+        // Get fields of the class.
+        for (const auto &fieldIterator : Declaration->fields()) {
+            message.fields.push_back(getFieldFrom(fieldIterator));
+        }
+        if (message.name.find("yfit") != std::string::npos) {
             cout << message.getDefinition();
         }
         return true;
