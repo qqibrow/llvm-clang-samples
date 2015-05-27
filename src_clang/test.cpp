@@ -29,9 +29,10 @@ struct Proto {
 
     std::string getDefinition() const {
          std::ostringstream out;
-        out << "Message " << name << "{" << endl;
+        out << "Message " << name << " {" << endl;
+        int sequence = 1;
         for (const auto &field : fields) {
-            out << field.getAsString() << endl;
+            out << "optional " << field.getAsString() << " = " << sequence++ << ";"<< endl;
         }
         out << "}" << endl;
         return out.str();
@@ -72,7 +73,7 @@ class FindNamedClassVisitor
             }
             cout << message.getDefinition();
         }
-        Declaration->dump();
+        //Declaration->dump();
 
         /*
         for(auto i = Declaration->decls_begin(); i != Declaration->decls_end();
