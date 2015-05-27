@@ -108,6 +108,7 @@ all: make_builddir \
 	$(BUILDDIR)/replace_threadidx_with_call \
 	$(BUILDDIR)/access_debug_metadata \
 	$(BUILDDIR)/clang-check \
+	$(BUILDDIR)/test \
 	$(BUILDDIR)/rewritersample \
 	$(BUILDDIR)/matchers_replacements \
 	$(BUILDDIR)/matchers_rewriter \
@@ -149,6 +150,10 @@ $(BUILDDIR)/hello_pass.so: $(SRC_LLVM_DIR)/hello_pass.cpp
 		$^ $(PLUGIN_LDFLAGS) $(LLVM_LDFLAGS_NOLIBS) -o $@
 
 $(BUILDDIR)/clang-check: $(SRC_CLANG_DIR)/ClangCheck.cpp
+	$(CXX) $(CXXFLAGS) $(LLVM_CXXFLAGS) $(CLANG_INCLUDES) $^ \
+		$(CLANG_LIBS) $(LLVM_LDFLAGS) -o $@
+
+$(BUILDDIR)/test: $(SRC_CLANG_DIR)/test.cpp
 	$(CXX) $(CXXFLAGS) $(LLVM_CXXFLAGS) $(CLANG_INCLUDES) $^ \
 		$(CLANG_LIBS) $(LLVM_LDFLAGS) -o $@
 
