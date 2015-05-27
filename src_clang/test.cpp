@@ -20,7 +20,7 @@ struct Field {
 
     Field(string type, string name) : type_(type), name_(name) {}
 
-    std::string getAsString() const { return  type_ + " " + name_; }
+    std::string getAsString() const { return type_ + " " + name_; }
 };
 
 struct Proto {
@@ -28,11 +28,12 @@ struct Proto {
     vector<Field> fields;
 
     std::string getDefinition() const {
-         std::ostringstream out;
+        std::ostringstream out;
         out << "Message " << name << " {" << endl;
         int sequence = 1;
         for (const auto &field : fields) {
-            out << "optional " << field.getAsString() << " = " << sequence++ << ";"<< endl;
+            out << "optional " << field.getAsString() << " = " << sequence++
+                << ";" << endl;
         }
         out << "}" << endl;
         return out.str();
@@ -50,9 +51,7 @@ class FindNamedClassVisitor
             std::string::npos) {
             // anonymous class
             for (const auto &fieldIterator : Declaration->fields()) {
-                string type = fieldIterator->getType().getAsString();
-                string name = fieldIterator->getNameAsString();
-                message.fields.push_back(Field(type, name));
+                message.fields.push_back(getFieldFrom(fieldIterator));
             }
             const Decl *nextDecl = Declaration->getNextDeclInContext();
             if (nextDecl && nextDecl->getKind() == Decl::Typedef) {
@@ -67,32 +66,26 @@ class FindNamedClassVisitor
         } else {
             message.name = Declaration->getQualifiedNameAsString();
             for (const auto &fieldIterator : Declaration->fields()) {
-                string type = fieldIterator->getType().getAsString();
-                string name = fieldIterator->getNameAsString();
-                message.fields.push_back(Field(type, name));
+                message.fields.push_back(getFieldFrom(fieldIterator));
             }
             cout << message.getDefinition();
         }
-        //Declaration->dump();
-
-        /*
-        for(auto i = Declaration->decls_begin(); i != Declaration->decls_end();
-        ++i) {
-            cout << i->getDeclKindName();
-        }
-        */
-        /*
-  if (Declaration->getQualifiedNameAsString() == "n::m::C") {
-      Declaration->
-    FullSourceLoc FullLocation =
-  Context->getFullLoc(Declaration->getLocStart());
-    if (FullLocation.isValid())
-      llvm::outs() << "Found declaration at "
-                   << FullLocation.getSpellingLineNumber() << ":"
-                   << FullLocation.getSpellingColumnNumber() << "\n";
-  }
-  */
         return true;
+    }
+
+    Field getFieldFrom(const FieldDecl *const fieldIterator) {
+        string type("null");
+        if (isa<TypedefType>(fieldIterator->getType().getTypePtr())) {
+            const BuiltinType *t =
+                fieldIterator->getType()->getAs<BuiltinType>();
+            if (t) {
+                type = QualType(t, 0).getAsString();
+            }
+        } else {
+            type = fieldIterator->getType().getAsString();
+        }
+        string name = fieldIterator->getNameAsString();
+        return Field(type, name);
     }
 
    private:
