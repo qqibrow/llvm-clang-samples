@@ -28,6 +28,13 @@ struct Proto {
     vector<Field> fields;
 
     std::string getDefinition() const {
+        /*
+        std::ostringstream out;
+        for(const auto& f : fields) {
+            out << f.getAsString() << endl;
+        }
+        return out.str();
+        */
         std::ostringstream out;
         out << "Message " << name << " {" << endl;
         int sequence = 1;
@@ -46,6 +53,12 @@ class FindNamedClassVisitor
     explicit FindNamedClassVisitor(ASTContext *Context) : Context(Context) {}
 
     bool VisitCXXRecordDecl(CXXRecordDecl *Declaration) {
+        if(!Declaration->isStruct()) {
+            return true;
+        }
+        // print out file source path.
+        const SourceManager& sourceManager = Context->getSourceManager();
+        cout << sourceManager.getFilename(Declaration->getLocation()).str();
         Proto message;
         // Get name of the class.
         if (Declaration->getQualifiedNameAsString().find("anonymous") !=
@@ -58,6 +71,7 @@ class FindNamedClassVisitor
                 message.name = typedefDecl->getNameAsString();
             } else {
                 cout << "some error might happen." << endl;
+                Declaration->dump();
             }
 
         } else {
@@ -81,6 +95,12 @@ class FindNamedClassVisitor
             if (t) {
                 type = QualType(t, 0).getAsString();
             }
+            const PointerType *p =
+                fieldIterator->getType()->getAs<PointerType>();
+            if(p) {
+                type = QualType(p, 0).getAsString();
+            }
+
         } else {
             type = fieldIterator->getType().getAsString();
         }
