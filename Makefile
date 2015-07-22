@@ -108,7 +108,7 @@ all: make_builddir \
 	$(BUILDDIR)/replace_threadidx_with_call \
 	$(BUILDDIR)/access_debug_metadata \
 	$(BUILDDIR)/clang-check \
-	$(BUILDDIR)/test \
+	$(BUILDDIR)/auto_generate_protobuf_defs \
 	$(BUILDDIR)/rewritersample \
 	$(BUILDDIR)/matchers_replacements \
 	$(BUILDDIR)/matchers_rewriter \
@@ -153,7 +153,7 @@ $(BUILDDIR)/clang-check: $(SRC_CLANG_DIR)/ClangCheck.cpp
 	$(CXX) $(CXXFLAGS) $(LLVM_CXXFLAGS) $(CLANG_INCLUDES) $^ \
 		$(CLANG_LIBS) $(LLVM_LDFLAGS) -o $@
 
-$(BUILDDIR)/test: $(SRC_CLANG_DIR)/test.cpp
+$(BUILDDIR)/auto_generate_protobuf_defs: $(SRC_CLANG_DIR)/auto_generate_protobuf_defs.cpp
 	$(CXX) $(CXXFLAGS) $(LLVM_CXXFLAGS) $(CLANG_INCLUDES) $^ \
 		$(CLANG_LIBS) $(LLVM_LDFLAGS) -o $@
 
